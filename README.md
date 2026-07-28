@@ -108,11 +108,27 @@ zpdf stamp doc.pdf -p 1 --text "DRAFT" --at 300,700 --size 48 --color 255,0,0 -o
 
 ```
 zpdf-skill/
-├── SKILL.md              # Main skill definition
-├── README.md             # This file
+├── SKILL.md                      # Main skill definition
+├── README.md                     # This file
 └── references/
-    └── zpdf-commands.md  # Complete command reference
+    ├── quick-reference.md        # Fast lookup for common operations
+    ├── reading-commands.md       # Reading & extraction commands
+    ├── analysis-commands.md      # Structured data & analysis commands
+    ├── editing-commands.md       # Modification & optimization commands
+    └── zpdf-commands.md          # Complete reference (all commands)
 ```
+
+## Reference Files
+
+The skill uses split reference files to reduce token overhead:
+
+- **[quick-reference.md](references/quick-reference.md)** — Fast lookup card for common operations (~1.5K tokens)
+- **[reading-commands.md](references/reading-commands.md)** — info, text, render, search, convert, export-pptx (~1.8K tokens)
+- **[analysis-commands.md](references/analysis-commands.md)** — tables, forms, outline, links, signatures, attachments (~1.5K tokens)
+- **[editing-commands.md](references/editing-commands.md)** — fill, merge, split, optimize, annotate, redact, sign (~2.5K tokens)
+- **[zpdf-commands.md](references/zpdf-commands.md)** — Complete reference with all details (~6K tokens)
+
+Load only the reference files needed for the specific task.
 
 ## Key Features
 
@@ -400,5 +416,9 @@ This skill documentation is part of the zpdf project and follows the same licens
 
 ## Documentation Links
 
-- **[SKILL.md](SKILL.md)**: Core skill definition with all commands and decision flows
-- **[references/zpdf-commands.md](references/zpdf-commands.md)**: Complete command reference with detailed examples
+- **[SKILL.md](SKILL.md)**: Core skill definition with decision flows and quick start
+- **[references/quick-reference.md](references/quick-reference.md)**: Fast lookup card for common operations
+- **[references/reading-commands.md](references/reading-commands.md)**: Reading & extraction commands
+- **[references/analysis-commands.md](references/analysis-commands.md)**: Structured data & analysis commands
+- **[references/editing-commands.md](references/editing-commands.md)**: Modification & optimization commands
+- **[references/zpdf-commands.md](references/zpdf-commands.md)**: Complete reference with all details
