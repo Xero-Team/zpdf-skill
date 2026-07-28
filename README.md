@@ -1,253 +1,404 @@
 # README: zpdf Skill
 
-A Claude Code skill for reading PDF files using the zpdf CLI tool, providing 10-15% token savings compared to Python-based approaches while maintaining superior fidelity.
+A comprehensive Claude Code skill for PDF processing using the zpdf CLI tool — a pure Rust PDF toolkit with full read, write, and conversion capabilities.
 
 ## Overview
 
-This skill teaches Claude to use the zpdf CLI (a pure Rust PDF toolkit) for all PDF reading tasks, replacing Python libraries (PyPDF2, pdfplumber) and external tools (codex MCP).
-So download zpdf-cli first.
+This skill teaches Claude to use zpdf CLI for all PDF tasks: reading, analysis, conversion, editing, optimization, and document creation.
+
+Install zpdf CLI first:
 ```bash
 cargo install zpdf-cli
 ```
 
-**Key benefits**:
+**Key features**:
 
-- **Lower token cost**: 10-15% fewer tokens vs Python approaches
-- **Better fidelity**: Native handling of encrypted PDFs, CJK fonts, complex layouts
-- **Cleaner context**: No library imports or error handling boilerplate
-- **Two strategies**: Text extraction (cheap) and image rendering (layout-preserving)
+- **Complete PDF toolkit**: Read, write, convert, merge, split, annotate, sign, encrypt
+- **Native encryption**: Password-protected PDFs handled seamlessly
+- **CJK support**: Chinese/Japanese/Korean fonts work correctly
+- **Multiple backends**: CPU (default) and GPU (wgpu) rendering
+- **Structured extraction**: Tables, forms, links, outlines, attachments
+- **Format conversion**: PDF → Text/Markdown/HTML/PowerPoint
 
 ## When This Skill Activates
 
 Triggers when user asks to:
 
+**Reading/Analysis**:
 - "Read this PDF"
-- "Analyze PDF"
-- "Extract text from PDF"
+- "Extract text/tables from PDF"
 - "What's in this PDF?"
 - "Summarize PDF"
-- Any task requiring PDF content access
+- "Search PDF for..."
+
+**Conversion**:
+- "Convert PDF to Markdown/HTML/PowerPoint"
+- "Export PDF pages as images"
+
+**Editing**:
+- "Merge/split PDFs"
+- "Fill PDF form"
+- "Add annotation/watermark to PDF"
+- "Compress/optimize PDF"
+- "Encrypt/decrypt PDF"
+- "Sign PDF digitally"
 
 ## Quick Usage
 
-### Basic Commands
+### Reading Commands
 
 ```bash
-# Get PDF info (page count, encryption status)
+# Get PDF info (ALWAYS run first)
 zpdf info <file.pdf>
 
-# Extract text from page
-zpdf text <file.pdf> -p <page>
+# Extract text
+zpdf text <file.pdf> -p <page>           # Single page
+zpdf text <file.pdf> --all               # All pages
 
-# Extract all text
-zpdf text <file.pdf> --all
-
-# Render page to image (for vision analysis)
+# Render to image
 zpdf render <file.pdf> -p <page> -o output.png --dpi 150
 
 # Search content
-zpdf search <file.pdf> "keyword"
+zpdf search <file.pdf> "keyword" [--case-sensitive]
 
-# Password-protected PDFs
-zpdf text <file.pdf> --password <pw> -p <page>
+# Convert formats
+zpdf convert <file.pdf> -o output.md --format md --all
+zpdf export-pptx <file.pdf> -o slides.pptx --all
+
+# Extract structured data
+zpdf tables <file.pdf> -p <page> [--csv]
+zpdf forms <file.pdf>
+zpdf outline <file.pdf>
+zpdf links <file.pdf>
+zpdf attachments <file.pdf> --extract all --out-dir ./
 ```
 
-### Strategy Selection
+### Editing Commands
 
-**Use text extraction when**:
+```bash
+# Fill form
+zpdf fill form.pdf --set name="John Doe" --set email="john@example.com" -o filled.pdf
 
-- Document is prose-heavy (reports, articles)
-- No complex layouts or diagrams
-- Speed and token efficiency are priorities
+# Merge PDFs
+zpdf merge a.pdf b.pdf c.pdf -o combined.pdf
 
-**Use image rendering when**:
+# Split pages
+zpdf split document.pdf --pages 1,3-5 -o selected.pdf
 
-- Document has diagrams, charts, equations
-- Layout preservation is important
-- Vision capabilities are available
+# Optimize/compress
+zpdf optimize large.pdf -o small.pdf --max-image-dim 2048
 
-## Token Savings Evidence
+# Encrypt
+zpdf optimize doc.pdf -o secure.pdf --encrypt aes256 --user-password secret
 
-### Benchmark: 10-page technical paper
+# Annotate
+zpdf annotate doc.pdf -p 1 --kind highlight --rect 100,200,300,250 --color 255,255,0 -o marked.pdf
 
-| Method              | Setup Tokens | Content Tokens  | Total           | Efficiency              |
-| ------------------- | ------------ | --------------- | --------------- | ----------------------- |
-| PyPDF2              | 1,450        | 8,200           | 9,650           | Baseline                |
-| pdfplumber          | 1,720        | 8,200           | 9,920           | -2.8% (worse)           |
-| codex MCP           | 780          | 8,200           | 8,980           | +6.9%                   |
-| **zpdf text** | **8**  | **8,200** | **8,208** | **+14.9% (best)** |
+# Redact
+zpdf redact sensitive.pdf -p 2 --rect 50,100,200,150 --fill 0,0,0 -o redacted.pdf
 
-**Result**: zpdf saves 1,442 tokens (15%) on text extraction vs PyPDF2.
+# Sign
+zpdf sign doc.pdf --key key.p8.der --cert cert.der --name "Jane Smith" -o signed.pdf
 
-### With Vision (Image Strategy)
-
-| Method                | Setup        | Content          | Total            | Fidelity       |
-| --------------------- | ------------ | ---------------- | ---------------- | -------------- |
-| Python + PIL          | 1,500        | 20,000           | 21,500           | 100%           |
-| **zpdf render** | **50** | **20,000** | **20,050** | **100%** |
-
-**Result**: zpdf saves 1,450 tokens (7%) while maintaining perfect layout fidelity.
+# Stamp
+zpdf stamp doc.pdf -p 1 --text "DRAFT" --at 300,700 --size 48 --color 255,0,0 -o stamped.pdf
+```
 
 ## File Structure
 
 ```
-zpdf/
+zpdf-skill/
 ├── SKILL.md              # Main skill definition
 ├── README.md             # This file
-├── QUICK_START.md        # Quick reference card
-├── references/
-│   ├── token-comparison.md   # Detailed token efficiency analysis
-│   └── zpdf-commands.md      # Complete command reference
-└── examples/
-    └── workflows.md          # Real-world usage examples
+└── references/
+    └── zpdf-commands.md  # Complete command reference
 ```
-
-## Documentation
-
-- **[SKILL.md](SKILL.md)**: Full skill definition with strategy and patterns
-
-
-
-- **[references/token-comparison.md](references/token-comparison.md)**: Detailed token savings proof
-- **[references/zpdf-commands.md](references/zpdf-commands.md)**: Complete zpdf CLI reference
-- **[examples/workflows.md](examples/workflows.md)**: Real-world examples and workflows
 
 ## Key Features
 
-### 1. Native Encryption Handling
+### 1. Complete Read/Write Cycle
 
 ```bash
-# Password-protected PDFs work seamlessly
-zpdf text secure.pdf --password secret123 --all
+# Read → Modify → Write
+zpdf info doc.pdf
+zpdf text doc.pdf -p 1
+zpdf fill doc.pdf --set field=value -o updated.pdf
+zpdf sign updated.pdf --key key.p8.der --cert cert.der -o final.pdf
 ```
 
-### 2. CJK Font Support
+### 2. Native Encryption Handling
+
+```bash
+# Read encrypted PDFs
+zpdf text secure.pdf --password secret123 --all
+
+# Create encrypted PDFs
+zpdf optimize doc.pdf -o encrypted.pdf --encrypt aes256 --user-password user123 --owner-password admin456
+```
+
+### 3. CJK Font Support
 
 ```bash
 # Chinese/Japanese/Korean PDFs extract correctly
 zpdf text chinese.pdf -p 1
-# PyPDF2 often fails on CJK fonts - zpdf handles natively
+zpdf convert japanese.pdf -o output.md --all
 ```
 
-### 3. Structured Data Extraction
+### 4. Format Conversion
 
 ```bash
-# Extract tables without rendering
-zpdf tables report.pdf -p 5
+# PDF → Markdown (preserves structure)
+zpdf convert paper.pdf -o paper.md --format md --mode rich --all
+
+# PDF → HTML (with images)
+zpdf convert doc.pdf -o doc.html --format html --images-dir ./images --all
+
+# PDF → PowerPoint
+zpdf export-pptx slides.pdf -o presentation.pptx --all
+
+# PDF → Images
+for p in 1 2 3; do
+  zpdf render doc.pdf -p $p -o page_$p.png --dpi 150
+done
+```
+
+### 5. Structured Data Extraction
+
+```bash
+# Extract tables as CSV
+zpdf tables financial.pdf -p 5 --csv > data.csv
 
 # Extract form fields
 zpdf forms application.pdf
+
+# Extract embedded files (ZUGFeRD invoices, portfolios)
+zpdf attachments invoice.pdf --extract all --out-dir ./extracted/
 ```
 
-### 4. Smart Page Selection
+### 6. Document Manipulation
 
 ```bash
-# Search before extracting (saves 50-80% tokens)
-zpdf search doc.pdf "keyword" | grep "Page"
-# Then extract only relevant pages
-zpdf text doc.pdf -p 5 -p 12 -p 18
+# Merge with custom page order
+zpdf merge intro.pdf --pages 1-3 body.pdf appendix.pdf --pages 1,5 -o final.pdf
+
+# Rotate, delete, reorder pages
+zpdf pages doc.pdf --rotate 1-5:90 --delete 7,9 --order 1,3,2,4-10 -o modified.pdf
+
+# Batch processing
+for f in *.pdf; do
+  zpdf optimize "$f" -o "optimized/$f" --max-image-dim 1024
+done
 ```
 
-### 5. Vision Integration
+### 7. Annotations & Markup
 
 ```bash
-# Render at optimal DPI for vision models
-zpdf render paper.pdf -p 3 -o algo.png --dpi 150
-# 150 DPI balances quality and token cost (~1,500 tokens/page)
+# Highlight text
+zpdf annotate doc.pdf -p 1 --kind highlight --rect 100,200,300,220 --color 255,255,0 -o marked.pdf
+
+# Add sticky note
+zpdf annotate doc.pdf -p 2 --kind note --at 100,500 --text "Review this section" --icon Comment -o noted.pdf
+
+# Add text box
+zpdf annotate doc.pdf -p 3 --kind freetext --rect 50,600,200,650 --text "Important!" --size 14 --color 255,0,0 -o annotated.pdf
+
+# Draw shapes
+zpdf annotate doc.pdf -p 1 --kind circle --rect 200,300,250,350 --color 0,0,255 --width 2 -o circled.pdf
+zpdf annotate doc.pdf -p 1 --kind line --rect 100,100,300,200 --color 255,0,0 --width 3 -o lined.pdf
+```
+
+### 8. Digital Signatures
+
+```bash
+# Sign PDF (requires PKCS#8 key and X.509 cert in DER format)
+zpdf sign contract.pdf \
+  --key private_key.p8.der \
+  --cert certificate.der \
+  --name "John Doe" \
+  --reason "Contract approval" \
+  --location "New York" \
+  -o signed_contract.pdf
+
+# Verify signatures
+zpdf signatures signed_contract.pdf --trust trusted_roots.pem
 ```
 
 ## Design Principles
 
-1. **Always check page count first**: `zpdf info <file>` before bulk extraction
-2. **Search before reading**: Find relevant pages to avoid extracting everything
-3. **Text for prose, images for layout**: Hybrid approach saves 20-40% tokens
-4. **150 DPI is the sweet spot**: Good quality, reasonable token cost
+1. **Always check info first**: `zpdf info <file>` reveals pages, encryption, structure
+2. **Search before bulk extraction**: Find relevant pages to minimize processing
+3. **Choose the right tool**:
+   - Text extraction → `zpdf text`
+   - Layout preservation → `zpdf render`
+   - Structured data → `zpdf tables`, `zpdf forms`
+   - Format conversion → `zpdf convert`, `zpdf export-pptx`
+4. **DPI sweet spots**: 150 for readable, 300 for high-detail
 5. **Password via flag**: Never rely on interactive prompts (they fail in automation)
+6. **Selective extraction**: Use page ranges (`-p 1`, `--pages 1,3-5`) to target specific content
 
 ## Comparison with Alternatives
 
-| Aspect             | PyPDF2 | pdfplumber | codex  | zpdf                |
-| ------------------ | ------ | ---------- | ------ | ------------------- |
-| Token overhead     | 1,450  | 1,720      | 780    | **8**         |
-| Setup needed       | Yes    | Yes        | Yes    | **No**        |
-| CJK support        | Poor   | Medium     | Medium | **Excellent** |
-| Encrypted PDFs     | Manual | Manual     | Manual | **Native**    |
-| Complex layouts    | Poor   | Medium     | N/A    | **Excellent** |
-| Vision integration | Manual | Manual     | N/A    | **Built-in**  |
+| Capability           | PyPDF2 | pdfplumber | pdftk | zpdf              |
+| -------------------- | ------ | ---------- | ----- | ----------------- |
+| Text extraction      | Basic  | Good       | No    | **Excellent**     |
+| Table extraction     | No     | Yes        | No    | **Yes (native)**  |
+| Image rendering      | No     | Via Pillow | No    | **CPU + GPU**     |
+| Form filling         | Manual | Manual     | Yes   | **Native**        |
+| Encryption           | Basic  | Basic      | Yes   | **AES-256/RC4**   |
+| CJK fonts            | Poor   | Medium     | N/A   | **Full support**  |
+| Annotations          | Manual | No         | No    | **All types**     |
+| Digital signatures   | No     | No         | No    | **Create/verify** |
+| PDF → PowerPoint     | No     | No         | No    | **Yes**           |
+| Merge/split          | Yes    | No         | Yes   | **Yes**           |
+| Pure Rust (no C)     | No     | No         | No    | **Yes**           |
 
 ## Real-World Examples
 
-### Example 1: Research Paper
+### Example 1: Research Paper Analysis
 
 ```bash
 # 12-page paper with algorithms and charts
-zpdf info paper.pdf  # Check pages
-zpdf text paper.pdf -p 1 > intro.txt  # Extract prose
-zpdf render paper.pdf -p 4 -o algo.png --dpi 150  # Render algorithms
-zpdf render paper.pdf -p 9 -o chart.png --dpi 150  # Render charts
-
-# Token cost: ~8,500 (vs 16,500 with PyPDF2)
-# Savings: 48% with full fidelity
+zpdf info paper.pdf                          # Check structure
+zpdf text paper.pdf -p 1 > intro.txt         # Extract prose sections
+zpdf render paper.pdf -p 4 -o algo.png --dpi 150    # Render algorithm diagrams
+zpdf render paper.pdf -p 9 -o chart.png --dpi 150   # Render charts
+zpdf links paper.pdf > references.txt        # Extract citations
 ```
 
-### Example 2: Business Report
+### Example 2: Contract Review & Signing
 
 ```bash
-# 25-page report - search first
-zpdf search report.pdf "revenue" | grep "Page"
-# Found on pages: 1, 3, 7, 12
-zpdf tables report.pdf -p 3 > tables.txt  # Structured data
-zpdf text report.pdf -p 7 > analysis.txt  # Text narrative
+# Read, annotate, and sign contract
+zpdf info contract.pdf
+zpdf text contract.pdf --all > contract.txt  # Extract for review
+zpdf search contract.pdf "liability" > key_sections.txt
 
-# Token cost: ~3,000 (vs 30,000 for full extraction)
-# Savings: 90% by selective extraction
+# Add review notes
+zpdf annotate contract.pdf -p 3 --kind note --at 100,500 \
+  --text "Verify this clause" --icon Comment -o reviewed.pdf
+
+# Sign after approval
+zpdf sign reviewed.pdf --key key.p8.der --cert cert.der \
+  --name "Jane Smith" --reason "Agreement" -o signed_contract.pdf
 ```
 
-### Example 3: Tax Form
+### Example 3: Form Processing Pipeline
 
 ```bash
-# Check if interactive or scanned
-zpdf forms tax.pdf  # Try form fields first
-# If empty, render for OCR:
-zpdf render tax.pdf -p 1 -o form.png --dpi 300  # High DPI for legibility
+# Batch fill forms
+zpdf forms template.pdf                      # List available fields
+zpdf fill template.pdf \
+  --set name="John Doe" \
+  --set email="john@example.com" \
+  --set date="2026-07-28" \
+  -o filled_john.pdf
 
-# Token cost: ~2,500 (300 DPI image)
+# Merge multiple filled forms
+zpdf merge filled_john.pdf filled_jane.pdf filled_bob.pdf -o all_submissions.pdf
 ```
 
-## Installation Note
-
-zpdf is built as part of this project (zpdf-cli crate). If working outside this repository:
+### Example 4: Document Optimization & Publishing
 
 ```bash
-# Install zpdf (if not in this project)
+# Optimize large PDF for web
+zpdf optimize large_report.pdf -o web_report.pdf \
+  --max-image-dim 1024                       # Downsample images
+
+# Encrypt for distribution
+zpdf optimize web_report.pdf -o secure_report.pdf \
+  --encrypt aes256 \
+  --user-password "read2026" \
+  --owner-password "admin2026"
+
+# Add watermark
+zpdf stamp secure_report.pdf -p 1 --text "CONFIDENTIAL" \
+  --at 300,50 --size 36 --color 128,128,128 -o final_report.pdf
+```
+
+### Example 5: PDF to PowerPoint Conversion
+
+```bash
+# Convert slide deck PDF to editable PowerPoint
+zpdf export-pptx slides.pdf -o presentation.pptx --all
+
+# Convert selected pages only
+zpdf export-pptx deck.pdf -o summary.pptx --pages 1,5-10,20
+```
+
+### Example 6: Data Extraction for Analysis
+
+```bash
+# Extract tables from financial report
+zpdf search financial_report.pdf "revenue" > pages.txt  # Find relevant pages
+zpdf tables financial_report.pdf -p 5 --csv > q1_data.csv
+zpdf tables financial_report.pdf -p 12 --csv > q2_data.csv
+
+# Extract embedded spreadsheets (ZUGFeRD invoices)
+zpdf attachments invoice.pdf --extract all --out-dir ./data/
+```
+
+### Example 7: Bulk Document Processing
+
+```bash
+# Process all PDFs in directory
+for pdf in documents/*.pdf; do
+  basename=$(basename "$pdf" .pdf)
+  
+  # Extract text
+  zpdf text "$pdf" --all > "text/${basename}.txt"
+  
+  # Optimize
+  zpdf optimize "$pdf" -o "optimized/${basename}.pdf" --max-image-dim 1500
+  
+  # Generate preview
+  zpdf render "$pdf" -p 1 -o "previews/${basename}.png" --dpi 72
+done
+```
+
+### Example 8: Redaction & Privacy
+
+```bash
+# Redact sensitive information
+zpdf redact personnel.pdf -p 1 \
+  --rect 100,200,300,220 \
+  --rect 100,400,300,420 \
+  --fill 0,0,0 \
+  -o redacted.pdf
+
+# Remove metadata
+zpdf set-meta redacted.pdf \
+  --title "" --author "" --subject "" --keywords "" \
+  -o clean.pdf
+```
+
+## Installation
+
+zpdf is built as part of this project (zpdf-cli crate). To use it:
+
+```bash
+# From this repository
+cd D:/project/zpdf
+cargo build --release -p zpdf-cli
+# Binary: target/release/zpdf.exe
+
+# Or install globally
 cargo install zpdf-cli
 
-# Or use from this repository
-cd /path/to/zpdf
-cargo build --release -p zpdf-cli
-# Binary at: target/release/zpdf
+# Verify installation
+zpdf info
 ```
 
 ## Version
 
-- **Skill version**: 1.0.0
-- **zpdf version**: 0.11.0+ (with export-pptx feature)
+- **Skill version**: 2.0.0
+- **zpdf version**: 0.11.0+ (with export-pptx, full annotation support, digital signatures)
 - **Tested on**: Windows 11, Linux, macOS
 
 ## License
 
 This skill documentation is part of the zpdf project and follows the same license (MIT).
 
-## Contributing
+## Documentation Links
 
-Found a better pattern or use case? Update this skill:
-
-1. Edit `SKILL.md` for core strategy
-2. Add examples to `examples/workflows.md`
-3. Update token comparisons in `references/token-comparison.md`
-
-## Credits
-
-- **zpdf**: Pure Rust PDF toolkit by zpdf contributors
-- **Skill design**: Optimized for Claude Code token efficiency
-- **Benchmarking**: Real-world PDF corpus from zpdf test suite
+- **[SKILL.md](SKILL.md)**: Core skill definition with all commands and decision flows
+- **[references/zpdf-commands.md](references/zpdf-commands.md)**: Complete command reference with detailed examples
