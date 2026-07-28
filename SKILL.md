@@ -17,7 +17,7 @@ Use zpdf CLI for all PDF operations. This skill intelligently loads references b
 ## Reference Loading Strategy
 
 **For reading-only tasks** (90% of PDF work):
-- Load **[read-minimal.md](references/read-minimal.md)** only (~50 lines, ~400 tokens)
+- Load **[read-minimal.md](references/read-minimal.md)**
 - Covers: `info`, `text`, `render`, `search`
 - Minimal context overhead
 
