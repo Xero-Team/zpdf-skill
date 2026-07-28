@@ -1,8 +1,9 @@
 ---
 name: zpdf
-description: Comprehensive PDF toolkit skill. Use zpdf CLI for all PDF tasks — reading, analysis, conversion, editing, and optimization. Pure Rust implementation with native support for encryption, CJK fonts, forms, and complex layouts.
-version: 2.0.0
+description: Complete PDF toolkit. Intelligently loads minimal reading reference for simple tasks, full references for editing/conversion. Use zpdf CLI for all PDF operations.
+version: 3.0.0
 references:
+  - read-minimal.md
   - quick-reference.md
   - reading-commands.md
   - analysis-commands.md
@@ -11,16 +12,28 @@ references:
 
 # zpdf: Complete PDF Toolkit
 
-Use zpdf CLI for all PDF operations. Load specific reference files as needed:
-- **quick-reference.md** — Fast lookup for common operations
-- **reading-commands.md** — Extract content (info, text, render, search, convert, export-pptx)
-- **analysis-commands.md** — Structured data (tables, forms, outline, links, signatures, attachments)
-- **editing-commands.md** — Modify PDFs (fill, merge, split, optimize, annotate, redact, sign)
+Use zpdf CLI for all PDF operations. This skill intelligently loads references based on task type.
+
+## Reference Loading Strategy
+
+**For reading-only tasks** (90% of PDF work):
+- Load **[read-minimal.md](references/read-minimal.md)** only (~50 lines, ~400 tokens)
+- Covers: `info`, `text`, `render`, `search`
+- Minimal context overhead
+
+**For editing/conversion tasks**:
+- Load additional references as needed:
+  - **[quick-reference.md](references/quick-reference.md)** - Fast lookup
+  - **[editing-commands.md](references/editing-commands.md)** - Form filling, merging, annotations, etc.
+  - **[analysis-commands.md](references/analysis-commands.md)** - Tables, forms, signatures, etc.
+  - **[reading-commands.md](references/reading-commands.md)** - Detailed reading command syntax
 
 ## Quick Start
 
+### Reading PDFs (Load read-minimal.md)
+
 ```bash
-# Always check info first
+# Check metadata
 zpdf info <file.pdf>
 
 # Extract text
@@ -32,73 +45,93 @@ zpdf render <file.pdf> -p <page> -o output.png --dpi 150
 
 # Search
 zpdf search <file.pdf> "keyword"
+```
 
-# Convert formats
-zpdf convert <file.pdf> -o output.md --all
-zpdf export-pptx <file.pdf> -o slides.pptx --all
+### Editing PDFs (Load editing-commands.md)
 
-# Extract structured data
-zpdf tables <file.pdf> -p <page>
-zpdf forms <file.pdf>
+```bash
+# Fill form
+zpdf fill form.pdf --set name="John" -o filled.pdf
 
-# Edit
-zpdf fill form.pdf --set field=value -o filled.pdf
+# Merge/split
 zpdf merge a.pdf b.pdf -o combined.pdf
 zpdf split doc.pdf --pages 1-5 -o part.pdf
-zpdf optimize doc.pdf -o small.pdf --max-image-dim 1024
 
 # Annotate
 zpdf annotate doc.pdf -p 1 --kind highlight --rect 100,200,300,220 -o marked.pdf
 
 # Sign
 zpdf sign doc.pdf --key key.p8.der --cert cert.der -o signed.pdf
+
+# Optimize
+zpdf optimize large.pdf -o small.pdf --max-image-dim 1024
+```
+
+### Converting PDFs (Load reading-commands.md)
+
+```bash
+# Convert to Markdown/HTML
+zpdf convert doc.pdf -o doc.md --all
+zpdf convert doc.pdf -o doc.html --all
+
+# Export to PowerPoint
+zpdf export-pptx slides.pdf -o presentation.pptx --all
+```
+
+### Analysis (Load analysis-commands.md)
+
+```bash
+# Extract tables
+zpdf tables financial.pdf -p 5 --csv
+
+# Get form fields
+zpdf forms application.pdf
+
+# Extract attachments
+zpdf attachments invoice.pdf --extract all
 ```
 
 ## Decision Flow
 
-### When user asks to read/analyze a PDF:
+1. **Determine task type**:
+   - **Reading only?** → Load `read-minimal.md` (saves ~90% context)
+   - **Editing needed?** → Load `editing-commands.md`
+   - **Converting?** → Load `reading-commands.md`
+   - **Structured data?** → Load `analysis-commands.md`
 
-1. **Check metadata**: `zpdf info <file.pdf>`
-2. **Choose strategy**:
-   - **Text extraction** → `zpdf text` for prose, search corpus
-   - **Image rendering** → `zpdf render` when layout/diagrams matter
-   - **Structured data** → `zpdf tables` for tables, `zpdf forms` for forms
-   - **Search first** → `zpdf search` for large documents
-3. **Extract selectively** — use page numbers from search results
+2. **For reading tasks**:
+   - Text-heavy → `zpdf text`
+   - Visual/layout → `zpdf render`
+   - Search first on large docs
 
-### When user asks to modify a PDF:
-
-1. **Forms** → `zpdf fill`
-2. **Combine/split** → `zpdf merge` or `zpdf split`
-3. **Compress** → `zpdf optimize`
-4. **Mark up** → `zpdf annotate` (highlights, notes, shapes)
-5. **Remove content** → `zpdf redact`
-6. **Protect** → `zpdf optimize --encrypt`
-7. **Sign** → `zpdf sign`
-
-### When user asks to convert from PDF:
-
-- **Text/Markdown/HTML** → `zpdf convert`
-- **PowerPoint** → `zpdf export-pptx`
-- **Images** → `zpdf render` with `--dpi 150-300`
-- **CSV tables** → `zpdf tables --csv`
+3. **Always start with**: `zpdf info <file.pdf>`
 
 ## Key Rules
 
-1. **Always start with** `zpdf info` to check pages/encryption
-2. **Password handling**: Use `--password <pw>` flag (interactive prompts fail in automation)
-3. **DPI defaults**: 150 for readable quality, 300 for high detail
-4. **Save temp images to /tmp**: `-o /tmp/page.png` for auto-cleanup
-5. **Backend choice**: `cpu` (default, everywhere) or `wgpu` (2-3× faster, needs GPU)
-6. **Search before bulk extraction**: Find relevant pages first
-7. **Page ranges**: Use `-p 1` or `--pages 1,3-5` or `--all`
+1. **Load minimal reference by default** - most PDF tasks are reading
+2. **Always run `zpdf info` first** - reveals pages/encryption
+3. **Password handling**: Use `--password <pw>` flag
+4. **DPI defaults**: 150 for readable, 300 for detail
+5. **Search before bulk extraction** on large documents
+6. **Page selection**: `-p 1` or `--pages 1,3-5` or `--all`
+
+## All Available Commands
+
+**Reading (6)**: info, text, render, search, convert, export-pptx  
+**Analysis (9)**: tables, forms, outline, links, struct, signatures, attachments, validate, compare  
+**Editing (9)**: fill, merge, split, optimize, annotate, redact, sign, pages, set-meta, stamp  
+**Debug (2)**: dump, debug-stream
+
+**Total**: 26 commands
 
 ## Reference Files
 
-Load these as needed for detailed command syntax:
+Load these based on task type:
 
-- **[quick-reference.md](references/quick-reference.md)** — Fast lookup for common operations
-- **[reading-commands.md](references/reading-commands.md)** — info, text, render, search, convert, export-pptx
-- **[analysis-commands.md](references/analysis-commands.md)** — tables, forms, outline, links, struct, signatures, attachments, validate, compare
-- **[editing-commands.md](references/editing-commands.md)** — fill, merge, split, optimize, annotate, redact, sign, pages, set-meta, stamp
-- **[zpdf-commands.md](references/zpdf-commands.md)** — Complete reference (all commands, full details)
+- **[read-minimal.md](references/read-minimal.md)** — Reading only (info, text, render, search) ~400 tokens ← **Load this first**
+- **[quick-reference.md](references/quick-reference.md)** — Fast lookup for all commands ~1,500 tokens
+- **[reading-commands.md](references/reading-commands.md)** — Detailed reading/conversion commands ~1,800 tokens
+- **[analysis-commands.md](references/analysis-commands.md)** — Tables, forms, links, signatures ~1,500 tokens
+- **[editing-commands.md](references/editing-commands.md)** — Fill, merge, annotate, sign, optimize ~2,500 tokens
+
+**Token savings**: Using read-minimal.md for reading tasks saves ~8,000 tokens vs loading all references.
