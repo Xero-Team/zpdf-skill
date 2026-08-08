@@ -1,6 +1,9 @@
 # zpdf-skill
 
-Claude Code skill for PDF processing using the zpdf CLI toolkit.
+Agent skill for PDF processing using the zpdf CLI toolkit — works with any
+AI coding assistant that consumes a `SKILL.md` + reference files, including
+[Claude Code](https://docs.claude.com/en/docs/claude-code),
+[OpenAI Codex](https://github.com/openai/codex), and [opencode](https://opencode.ai).
 
 ## Overview
 
@@ -142,10 +145,10 @@ The skill intelligently loads these based on task:
 
 **Reading (6)**: info, text, render, search, convert, export-pptx  
 **Analysis (9)**: tables, forms, outline, links, struct, signatures, attachments, validate, compare  
-**Editing (9)**: fill, merge, split, optimize, annotate, redact, sign, pages, set-meta, stamp  
+**Editing (10)**: fill, merge, split, optimize, annotate, redact, sign, pages, set-meta, stamp, tag  
 **Debug (2)**: dump, debug-stream
 
-**Total**: 26 commands
+**Total**: 27 commands
 
 ## Key Features
 
@@ -186,8 +189,8 @@ zpdf-skill/
 
 ## Version
 
-- **Skill version**: 3.0.0 (intelligent reference loading)
-- **zpdf CLI version**: 0.11.0+
+- **Skill version**: 3.1.0 (intelligent reference loading; synced to zpdf 0.12.x — `tag`, `validate --profile pdfua-1`, PAdES `sign` flags)
+- **zpdf CLI version**: 0.12.x+
 
 ## License
 
