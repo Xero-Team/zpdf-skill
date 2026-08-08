@@ -58,6 +58,8 @@ zpdf outline doc.pdf                       # Document TOC
 zpdf links doc.pdf                         # Extract hyperlinks
 zpdf signatures doc.pdf                    # Verify signatures
 zpdf attachments doc.pdf                   # List embedded files
+zpdf validate doc.pdf --profile pdfa-1b   # PDF/A archival check
+zpdf validate doc.pdf --profile pdfua-1    # PDF/UA accessibility check
 ```
 
 ### Modifying PDFs
@@ -70,6 +72,7 @@ zpdf annotate doc.pdf -p 1 --kind highlight --rect 100,200,300,220 -o marked.pdf
 zpdf redact doc.pdf -p 1 --rect 100,200,300,250 -o redacted.pdf
 zpdf sign doc.pdf --key key.p8.der --cert cert.der -o signed.pdf
 zpdf stamp doc.pdf -p 1 --text "DRAFT" --at 300,700 -o stamped.pdf
+zpdf tag doc.pdf -o tagged.pdf                           # Add accessibility tags
 ```
 
 ### Optimizing PDFs

@@ -1,7 +1,7 @@
 ---
 name: zpdf
 description: Complete PDF toolkit. Intelligently loads minimal reading reference for simple tasks, full references for editing/conversion. Use zpdf CLI for all PDF operations.
-version: 3.0.0
+version: 3.1.0
 references:
   - read-minimal.md
   - quick-reference.md
@@ -65,6 +65,9 @@ zpdf sign doc.pdf --key key.p8.der --cert cert.der -o signed.pdf
 
 # Optimize
 zpdf optimize large.pdf -o small.pdf --max-image-dim 1024
+
+# Add accessibility tags (for untagged PDFs)
+zpdf tag doc.pdf -o tagged.pdf
 ```
 
 ### Converting PDFs (Load reading-commands.md)
@@ -89,6 +92,10 @@ zpdf forms application.pdf
 
 # Extract attachments
 zpdf attachments invoice.pdf --extract all
+
+# Validate conformance (PDF/A or PDF/UA)
+zpdf validate doc.pdf --profile pdfa-1b
+zpdf validate doc.pdf --profile pdfua-1
 ```
 
 ## Decision Flow
@@ -119,10 +126,10 @@ zpdf attachments invoice.pdf --extract all
 
 **Reading (6)**: info, text, render, search, convert, export-pptx  
 **Analysis (9)**: tables, forms, outline, links, struct, signatures, attachments, validate, compare  
-**Editing (9)**: fill, merge, split, optimize, annotate, redact, sign, pages, set-meta, stamp  
+**Editing (10)**: fill, merge, split, optimize, annotate, redact, sign, pages, set-meta, stamp, tag  
 **Debug (2)**: dump, debug-stream
 
-**Total**: 26 commands
+**Total**: 27 commands
 
 ## Reference Files
 

@@ -163,7 +163,10 @@ zpdf redact doc.pdf -p 2 \
 ## sign — Digital Signature
 ```bash
 zpdf sign <file.pdf> --key <key.p8.der> --cert <cert.der>
-       [--name S] [--reason S] [--location S] -o <out.pdf>
+       [--name S] [--reason S] [--location S]
+       [--subfilter pkcs7|cades] [--appearance] [--appearance-rect X0,Y0,X1,Y1]
+       [--tsa <url>] [--cert-chain <pem> ...] [--crl <der> ...]
+       [--password <pw>] -o <out.pdf>
 ```
 
 **Flags**:
@@ -172,10 +175,18 @@ zpdf sign <file.pdf> --key <key.p8.der> --cert <cert.der>
 - `--name <str>` — Signer name
 - `--reason <str>` — Signing reason
 - `--location <str>` — Signing location
+- `--subfilter pkcs7|cades` — Signature encoding: `pkcs7` (`adbe.pkcs7.detached`, default) or `cades` (`ETSI.CAdES.detached`, PAdES)
+- `--appearance` — Emit a visible signature widget (use with `--appearance-rect`)
+- `--appearance-rect X0,Y0,X1,Y1` — On-page rectangle for the visible signature (required with `--appearance`)
+- `--tsa <url>` — RFC 3161 timestamp authority URL; embeds a timestamp token in the CMS `unsignedAttrs` (requires the `timestamp` feature at build time)
+- `--cert-chain <pem>` — Extra certificate (PEM) to embed in the CMS / DSS (repeat for a chain)
+- `--crl <der>` — CRL (DER) to embed for offline revocation info (repeat)
+- `--password <pw>` — Decrypt input with password
 - `-o <path>` — Output file (required)
 
-**Example**:
+**Examples**:
 ```bash
+# Basic detached signature
 zpdf sign contract.pdf \
   --key private_key.p8.der \
   --cert certificate.der \
@@ -183,7 +194,52 @@ zpdf sign contract.pdf \
   --reason "Contract approval" \
   --location "New York" \
   -o signed_contract.pdf
+
+# PAdES (ETSI.CAdES.detached) with a visible appearance
+zpdf sign contract.pdf \
+  --key key.p8.der --cert cert.der \
+  --subfilter cades \
+  --appearance --appearance-rect 100,600,300,680 \
+  --name "John Doe" -o signed_pades.pdf
+
+# Timestamped + LTV (DSS) with an embedded cert chain and CRL
+zpdf sign contract.pdf \
+  --key key.p8.der --cert cert.der \
+  --tsa http://timestamp.digicert.com \
+  --cert-chain chain.pem \
+  --crl revoked.crl \
+  -o signed_ltv.pdf
 ```
+
+---
+
+## tag — Add Tag Structure (Accessibility)
+```bash
+zpdf tag <file.pdf> [--password <pw>] -o <out.pdf>
+```
+
+Adds a coarse-grained tag structure to an **untagged** PDF for accessibility
+(PDF/UA): each page's content is wrapped in a `/Part` marked-content sequence,
+a `/StructTreeRoot` + `/ParentTree` + `/MarkInfo /Marked true` is emitted, and
+one `/Part` element per page carries the page's extracted text as `/Alt`. No-op
+when the document is already tagged.
+
+**Flags**:
+- `--password <pw>` — Decrypt input with password
+- `-o <path>` — Output file (required)
+
+**Example**:
+```bash
+# Tag an untagged PDF for screen-reader accessibility
+zpdf tag legacy_scan.pdf -o legacy_tagged.pdf
+
+# Verify with the PDF/UA validator
+zpdf validate legacy_tagged.pdf --profile pdfua-1
+```
+
+**Use when**: Making an existing untagged PDF accessible. The tags are
+page-level only (`/Part`); for fine-grained paragraph/heading/table semantics,
+author the PDF with a tagged-aware tool instead.
 
 ---
 

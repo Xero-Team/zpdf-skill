@@ -138,18 +138,29 @@ zpdf attachments invoice.pdf --extract all --out-dir ./extracted/
 
 ---
 
-## validate — PDF/A Validation
+## validate — PDF/A & PDF/UA Validation
 ```bash
-zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b] [--password <pw>]
+zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfua-1] [--password <pw>]
 ```
 
 **Flags**:
-- `--profile <spec>` — PDF/A profile to validate against
+- `--profile <spec>` — Conformance profile to validate against:
+  - `pdfa-1b` / `pdfa-2b` — PDF/A archival conformance (encryption, `/ID`, header version, XMP `pdfaid`, `GTS_PDFA1` output intent + ICC, font embedding, forbidden features incl. JS/Launch actions, embedded files, transparency, forbidden annotation subtypes)
+  - `pdfua-1` — PDF/UA-1 accessibility conformance (tagged, structure tree, `/Lang`, figure alt-text, headings, role mapping, table structure, annotation `/OBJR` coverage, `/StructParents`)
 - `--password <pw>` — Decrypt with password
 
-**Output**: Validation result with any violations.
+**Output**: Validation result with any violations (exits with code 3 on FAIL for PDF/A).
 
-**Use when**: Checking PDF/A compliance for archival.
+**Examples**:
+```bash
+# PDF/A-1b archival check
+zpdf validate archive.pdf --profile pdfa-1b
+
+# PDF/UA-1 accessibility check (after `zpdf tag`)
+zpdf validate doc.pdf --profile pdfua-1
+```
+
+**Use when**: Checking PDF/A compliance for archival, or PDF/UA compliance for accessibility (e.g. after `zpdf tag` adds a structure tree).
 
 ---
 
