@@ -59,7 +59,9 @@ zpdf links doc.pdf                         # Extract hyperlinks
 zpdf signatures doc.pdf                    # Verify signatures
 zpdf attachments doc.pdf                   # List embedded files
 zpdf validate doc.pdf --profile pdfa-1b   # PDF/A archival check
-zpdf validate doc.pdf --profile pdfua-1    # PDF/UA accessibility check
+zpdf validate doc.pdf --profile pdfa-3b   # PDF/A-3 (with /AF associated-files rules)
+zpdf validate doc.pdf --profile pdfua-1   # PDF/UA accessibility check
+zpdf validate doc.pdf --profile pdfua-2   # PDF/UA-2 (needs a PDF 2.0 header)
 ```
 
 ### Modifying PDFs
@@ -81,6 +83,7 @@ zpdf optimize doc.pdf -o small.pdf                      # Compress
 zpdf optimize doc.pdf -o web.pdf --max-image-dim 1024  # Downsample images
 zpdf optimize doc.pdf -o secure.pdf --encrypt aes256 \
   --user-password "read" --owner-password "admin"      # Encrypt
+zpdf optimize doc.pdf -o archive.pdf --pdfa pdfa-3b     # Convert to PDF/A-3b
 ```
 
 ## Password Handling

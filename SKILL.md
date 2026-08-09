@@ -95,7 +95,9 @@ zpdf attachments invoice.pdf --extract all
 
 # Validate conformance (PDF/A or PDF/UA)
 zpdf validate doc.pdf --profile pdfa-1b
+zpdf validate doc.pdf --profile pdfa-3b   # PDF/A-3 with /AF associated-files rules
 zpdf validate doc.pdf --profile pdfua-1
+zpdf validate doc.pdf --profile pdfua-2   # PDF/UA-2 (needs a PDF 2.0 header)
 ```
 
 ## Decision Flow

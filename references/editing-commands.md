@@ -58,6 +58,7 @@ zpdf split document.pdf -o pages/  # Split all pages to directory
 ```bash
 zpdf optimize <file.pdf> -o <out.pdf> [--no-compress] [--password <pw>]
        [--max-image-dim N] [--encrypt aes256|rc4 --user-password <pw> --owner-password <pw>]
+       [--pdfa pdfa-1b|pdfa-2b|pdfa-3b --icc <path> --fallback-font <path>]
 ```
 
 **Flags**:
@@ -68,6 +69,9 @@ zpdf optimize <file.pdf> -o <out.pdf> [--no-compress] [--password <pw>]
 - `--encrypt aes256|rc4` — Encrypt output
 - `--user-password <pw>` — User password for encrypted output
 - `--owner-password <pw>` — Owner password for encrypted output
+- `--pdfa pdfa-1b|pdfa-2b|pdfa-3b` — Convert to PDF/A: inject `GTS_PDFA1` output intent + ICC, write a `pdfaid` XMP packet, strip PDF/A-forbidden features (JS/Launch, embedded files/transparency for A-1b), fix the header version. A-3b also synthesizes the catalog `/AF` array for existing `/Names /EmbeddedFiles` (patching each file spec with `/AFRelationship /Unspecified`) so the output passes `validate --profile pdfa-3b`. Mutually exclusive with `--encrypt`/`--linearize`.
+- `--icc <path>` — Custom ICC profile to embed (defaults to sRGB)
+- `--fallback-font <path>` — TrueType program embedded as `/FontFile2` for non-embedded fonts (best-effort; satisfies PDF/A's embedding requirement)
 
 **Examples**:
 ```bash
@@ -85,6 +89,9 @@ zpdf optimize doc.pdf -o secure.pdf \
 
 # Decrypt and re-optimize
 zpdf optimize encrypted.pdf -o clean.pdf --password "read123"
+
+# Convert to PDF/A-3b (roundtrips through validate --profile pdfa-3b)
+zpdf optimize doc.pdf -o archive.pdf --pdfa pdfa-3b
 ```
 
 ---
@@ -235,6 +242,7 @@ zpdf tag legacy_scan.pdf -o legacy_tagged.pdf
 
 # Verify with the PDF/UA validator
 zpdf validate legacy_tagged.pdf --profile pdfua-1
+# (PDF/UA-2 additionally requires a PDF 2.0 header — use pdfua-2 for that)
 ```
 
 **Use when**: Making an existing untagged PDF accessible. The tags are

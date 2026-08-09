@@ -337,13 +337,15 @@ Extracted: logo.png → ./extracted/logo.png
 
 ### validate — PDF/A & PDF/UA Validation
 ```bash
-zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfua-1] [--password <pw>]
+zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfa-3b|pdfua-1|pdfua-2] [--password <pw>]
 ```
 
 **Flags**:
 - `--profile <spec>` — Conformance profile to validate against:
   - `pdfa-1b` / `pdfa-2b` — PDF/A archival conformance (encryption, `/ID`, header version, XMP `pdfaid`, `GTS_PDFA1` output intent + ICC, font embedding, forbidden features incl. JS/Launch actions, embedded files, transparency, forbidden annotation subtypes)
+  - `pdfa-3b` — PDF/A-3 archival conformance (all PDF/A-2b checks, plus the `/AF` associated-files rules: embedded files in `/Names /EmbeddedFiles` must be referenced from a catalog/page `/AF` array, and each `/AF` file spec must carry `/AFRelationship`; permits embedded files/transparency/`FileAttachment` unlike A-1b)
   - `pdfua-1` — PDF/UA-1 accessibility conformance (tagged, structure tree, `/Lang`, figure alt-text, headings, role mapping, table structure, annotation `/OBJR` coverage, `/StructParents`)
+  - `pdfua-2` — PDF/UA-2 accessibility conformance (all PDF/UA-1 checks plus a PDF 2.0 header requirement)
 - `--password <pw>` — Decrypt with password
 
 **Output**: Validation result with any violations (exit code 3 on FAIL for PDF/A).
@@ -440,6 +442,7 @@ zpdf split document.pdf -o pages/
 ```bash
 zpdf optimize <file.pdf> -o <out.pdf> [--no-compress] [--password <pw>]
        [--max-image-dim N] [--encrypt aes256|rc4 --user-password <pw> --owner-password <pw>]
+       [--pdfa pdfa-1b|pdfa-2b|pdfa-3b --icc <path> --fallback-font <path>]
 ```
 
 **Flags**:
@@ -450,6 +453,9 @@ zpdf optimize <file.pdf> -o <out.pdf> [--no-compress] [--password <pw>]
 - `--encrypt aes256|rc4` — Encrypt output
 - `--user-password <pw>` — User password for encrypted output
 - `--owner-password <pw>` — Owner password for encrypted output
+- `--pdfa pdfa-1b|pdfa-2b|pdfa-3b` — Convert to PDF/A: inject a `GTS_PDFA1` output intent + ICC profile, write a `pdfaid` XMP packet, strip PDF/A-forbidden features (JS/Launch, embedded files/transparency for A-1b), and fix the header version. A-3b additionally synthesizes the catalog `/AF` array for existing `/Names /EmbeddedFiles` (patching each file spec with `/AFRelationship /Unspecified`) so the output passes `validate --profile pdfa-3b`. Mutually exclusive with `--encrypt` and `--linearize`.
+- `--icc <path>` — Custom ICC profile to embed (defaults to sRGB)
+- `--fallback-font <path>` — TrueType program embedded as `/FontFile2` for non-embedded fonts (best-effort; satisfies PDF/A's embedding requirement)
 
 **Examples**:
 ```bash
@@ -467,9 +473,12 @@ zpdf optimize doc.pdf -o secure.pdf \
 
 # Decrypt and re-optimize
 zpdf optimize encrypted.pdf -o clean.pdf --password "read123"
+
+# Convert to PDF/A-3b (roundtrips through validate --profile pdfa-3b)
+zpdf optimize doc.pdf -o archive.pdf --pdfa pdfa-3b
 ```
 
-**Use when**: Reducing file size, encrypting/decrypting documents.
+**Use when**: Reducing file size, encrypting/decrypting documents, or converting to PDF/A for archival.
 
 ---
 
@@ -718,6 +727,7 @@ zpdf tag legacy_scan.pdf -o legacy_tagged.pdf
 
 # Verify with the PDF/UA validator
 zpdf validate legacy_tagged.pdf --profile pdfua-1
+# (PDF/UA-2 additionally requires a PDF 2.0 header — use pdfua-2 for that)
 ```
 
 **Use when**: Making an existing untagged PDF accessible. The tags are

@@ -140,13 +140,15 @@ zpdf attachments invoice.pdf --extract all --out-dir ./extracted/
 
 ## validate — PDF/A & PDF/UA Validation
 ```bash
-zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfua-1] [--password <pw>]
+zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfa-3b|pdfua-1|pdfua-2] [--password <pw>]
 ```
 
 **Flags**:
 - `--profile <spec>` — Conformance profile to validate against:
   - `pdfa-1b` / `pdfa-2b` — PDF/A archival conformance (encryption, `/ID`, header version, XMP `pdfaid`, `GTS_PDFA1` output intent + ICC, font embedding, forbidden features incl. JS/Launch actions, embedded files, transparency, forbidden annotation subtypes)
+  - `pdfa-3b` — PDF/A-3 archival conformance (all PDF/A-2b checks, plus the `/AF` associated-files rules: embedded files in `/Names /EmbeddedFiles` must be referenced from a catalog/page `/AF` array, and each `/AF` file spec must carry `/AFRelationship`; permits embedded files/transparency/`FileAttachment` unlike A-1b)
   - `pdfua-1` — PDF/UA-1 accessibility conformance (tagged, structure tree, `/Lang`, figure alt-text, headings, role mapping, table structure, annotation `/OBJR` coverage, `/StructParents`)
+  - `pdfua-2` — PDF/UA-2 accessibility conformance (all PDF/UA-1 checks plus a PDF 2.0 header requirement)
 - `--password <pw>` — Decrypt with password
 
 **Output**: Validation result with any violations (exits with code 3 on FAIL for PDF/A).
@@ -155,6 +157,9 @@ zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfua-1] [--password <pw>]
 ```bash
 # PDF/A-1b archival check
 zpdf validate archive.pdf --profile pdfa-1b
+
+# PDF/A-3b check (e.g. a ZUGFeRD invoice with an embedded XML /AF)
+zpdf validate invoice.pdf --profile pdfa-3b
 
 # PDF/UA-1 accessibility check (after `zpdf tag`)
 zpdf validate doc.pdf --profile pdfua-1
