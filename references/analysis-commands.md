@@ -138,9 +138,9 @@ zpdf attachments invoice.pdf --extract all --out-dir ./extracted/
 
 ---
 
-## validate — PDF/A & PDF/UA Validation
+## validate — PDF/A, PDF/UA & PDF/X Validation
 ```bash
-zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfa-3b|pdfua-1|pdfua-2] [--password <pw>]
+zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfa-3b|pdfua-1|pdfua-2|pdfx-1a|pdfx-3|pdfx-4|pdfx-6] [--password <pw>]
 ```
 
 **Flags**:
@@ -149,9 +149,12 @@ zpdf validate <file.pdf> [--profile pdfa-1b|pdfa-2b|pdfa-3b|pdfua-1|pdfua-2] [--
   - `pdfa-3b` — PDF/A-3 archival conformance (all PDF/A-2b checks, plus the `/AF` associated-files rules: embedded files in `/Names /EmbeddedFiles` must be referenced from a catalog/page `/AF` array, and each `/AF` file spec must carry `/AFRelationship`; permits embedded files/transparency/`FileAttachment` unlike A-1b)
   - `pdfua-1` — PDF/UA-1 accessibility conformance (tagged, structure tree, `/Lang`, figure alt-text, headings, role mapping, table structure, annotation `/OBJR` coverage, `/StructParents`)
   - `pdfua-2` — PDF/UA-2 accessibility conformance (all PDF/UA-1 checks plus a PDF 2.0 header requirement)
+  - `pdfx-1a` / `pdfx-3` — PDF/X-1a / X-3 (ISO 15930, PDF 1.3): `/GTS_PDFX` output intent with an embedded **CMYK** (`/N=4`) ICC profile, all fonts embedded, every page has `/TrimBox` or `/ArtBox` with `MediaBox ⊇ BleedBox ⊇ TrimBox ⊇ ArtBox` containment, no encryption/JS/Launch/transparency, forbidden annotation subtypes (3D/Sound/Movie/FileAttachment) + Print flag, `/Trapped` required. X-1a additionally forbids RGB of any kind (DeviceRGB/CalRGB/CalGray/ICCBased N=3); X-3 allows calibrated colour
+  - `pdfx-4` — PDF/X-4 (ISO 15930-4, PDF 1.4–1.7): as X-3 but permits transparency/layers and forbids only uncalibrated DeviceRGB
+  - `pdfx-6` — PDF/X-6 (ISO 15930-7, PDF 2.0): as X-4 on a PDF 2.0 header
 - `--password <pw>` — Decrypt with password
 
-**Output**: Validation result with any violations (exits with code 3 on FAIL for PDF/A).
+**Output**: Validation result with any violations and the XMP-claimed version (exits with code 3 on FAIL).
 
 **Examples**:
 ```bash
@@ -163,9 +166,12 @@ zpdf validate invoice.pdf --profile pdfa-3b
 
 # PDF/UA-1 accessibility check (after `zpdf tag`)
 zpdf validate doc.pdf --profile pdfua-1
+
+# PDF/X-4 print-production check (before sending to a print shop)
+zpdf validate brochure.pdf --profile pdfx-4
 ```
 
-**Use when**: Checking PDF/A compliance for archival, or PDF/UA compliance for accessibility (e.g. after `zpdf tag` adds a structure tree).
+**Use when**: Checking PDF/A compliance for archival, PDF/UA for accessibility, or PDF/X for print production (e.g. before sending a file to a print shop).
 
 ---
 

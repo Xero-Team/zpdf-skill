@@ -1,7 +1,7 @@
 ---
 name: zpdf
 description: Complete PDF toolkit. Intelligently loads minimal reading reference for simple tasks, full references for editing/conversion. Use zpdf CLI for all PDF operations.
-version: 3.1.0
+version: 3.3.0
 references:
   - read-minimal.md
   - quick-reference.md
@@ -93,11 +93,13 @@ zpdf forms application.pdf
 # Extract attachments
 zpdf attachments invoice.pdf --extract all
 
-# Validate conformance (PDF/A or PDF/UA)
+# Validate conformance (PDF/A, PDF/UA, or PDF/X)
 zpdf validate doc.pdf --profile pdfa-1b
 zpdf validate doc.pdf --profile pdfa-3b   # PDF/A-3 with /AF associated-files rules
 zpdf validate doc.pdf --profile pdfua-1
 zpdf validate doc.pdf --profile pdfua-2   # PDF/UA-2 (needs a PDF 2.0 header)
+zpdf validate doc.pdf --profile pdfx-4   # PDF/X-4 print-production (PDF 1.4–1.7)
+zpdf validate doc.pdf --profile pdfx-1a   # PDF/X-1a (CMYK/Gray/spot only, no RGB)
 ```
 
 ## Decision Flow

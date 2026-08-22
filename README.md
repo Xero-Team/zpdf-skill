@@ -189,7 +189,7 @@ zpdf-skill/
 
 ## Version
 
-- **Skill version**: 3.2.0 (intelligent reference loading; synced to zpdf 0.12.x — `tag`, `validate --profile pdfa-3b|pdfua-2`, `optimize --pdfa pdfa-3b`, PAdES `sign` flags)
+- **Skill version**: 3.3.0 (intelligent reference loading; synced to zpdf 0.12.x — `tag`, `validate --profile pdfa-3b|pdfua-2|pdfx-1a|pdfx-3|pdfx-4|pdfx-6`, `optimize --pdfa pdfa-3b`, PAdES `sign` flags)
 - **zpdf CLI version**: 0.12.x+
 
 ## License

@@ -62,6 +62,8 @@ zpdf validate doc.pdf --profile pdfa-1b   # PDF/A archival check
 zpdf validate doc.pdf --profile pdfa-3b   # PDF/A-3 (with /AF associated-files rules)
 zpdf validate doc.pdf --profile pdfua-1   # PDF/UA accessibility check
 zpdf validate doc.pdf --profile pdfua-2   # PDF/UA-2 (needs a PDF 2.0 header)
+zpdf validate doc.pdf --profile pdfx-4    # PDF/X-4 print-production check
+zpdf validate doc.pdf --profile pdfx-1a   # PDF/X-1a (CMYK/Gray/spot only, no RGB)
 ```
 
 ### Modifying PDFs
